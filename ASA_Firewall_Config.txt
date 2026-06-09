@@ -1,0 +1,49 @@
+enable
+configure terminal
+hostname ciscoasa
+
+! ==========================================
+! 1. SECURITY ZONES AND INTERFACES
+! ==========================================
+! Internal Trusted Zone
+interface GigabitEthernet1/1
+ nameif inside
+ security-level 100
+ ip address 192.168.100.1 255.255.255.252
+ no shutdown
+ exit
+
+! External Untrusted Zone (Internet/ISP)
+interface GigabitEthernet1/2
+ nameif outside
+ security-level 0
+ ip address 10.10.10.1 255.255.255.252
+ no shutdown
+ exit
+
+! ==========================================
+! 2. DYNAMIC NAT (PAT) CONFIGURATION
+! ==========================================
+! Masking the entire 192.168.x.x block behind the external interface IP
+object network ALL_INTERNAL
+ subnet 192.168.0.0 255.255.0.0
+ nat (inside,outside) dynamic interface
+ exit
+
+! ==========================================
+! 3. STATIC ROUTING
+! ==========================================
+! Route outbound traffic to the ISP Edge Router
+route outside 0.0.0.0 0.0.0.0 10.10.10.2
+
+! ==========================================
+! 4. STATEFUL INSPECTION RULES
+! ==========================================
+! Allow ICMP Echo Requests (Ping) to return safely from the internet
+policy-map global_policy
+ class inspection_default
+ inspect icmp
+ exit
+
+end
+write memory
