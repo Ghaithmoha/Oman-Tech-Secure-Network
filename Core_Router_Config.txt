@@ -1,0 +1,80 @@
+enable
+configure terminal
+hostname OmanTech-CoreRouter
+
+! ==========================================
+! 1. EXTENDED ACCESS CONTROL LISTS (ACLs)
+! ==========================================
+! Enforcing Zero-Trust for HR Department
+ip access-list extended RESTRICT_HR
+ deny ip 192.168.20.0 0.0.0.255 192.168.10.0 0.0.0.255
+ deny icmp 192.168.20.0 0.0.0.255 192.168.40.0 0.0.0.255 echo
+ permit ip any any
+ exit
+
+! Enforcing Zero-Trust for Finance Department
+ip access-list extended RESTRICT_FINANCE
+ deny ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
+ deny icmp 192.168.10.0 0.0.0.255 192.168.40.0 0.0.0.255 echo
+ permit ip any any
+ exit
+
+! ==========================================
+! 2. INTERFACE CONFIGURATION & DHCP RELAY
+! ==========================================
+! Finance Subnet Gateway
+interface FastEthernet0/0
+ description Link_To_Finance_Switch
+ ip address 192.168.10.1 255.255.255.0
+ ip helper-address 192.168.50.10
+ ip access-group RESTRICT_FINANCE in
+ no shutdown
+ exit
+
+! Human Resources Subnet Gateway
+interface FastEthernet0/1
+ description Link_To_HR_Switch
+ ip address 192.168.20.1 255.255.255.0
+ ip helper-address 192.168.50.10
+ ip access-group RESTRICT_HR in
+ no shutdown
+ exit
+
+! IT Department Gateway (Using NM-4E Module)
+interface Ethernet1/0
+ description Link_To_IT_Switch
+ ip address 192.168.30.1 255.255.255.0
+ ip helper-address 192.168.50.10
+ no shutdown
+ exit
+
+! Management Department Gateway (Using NM-4E Module)
+interface Ethernet1/1
+ description Link_To_Management_Switch
+ ip address 192.168.40.1 255.255.255.0
+ ip helper-address 192.168.50.10
+ no shutdown
+ exit
+
+! Server Farm Gateway (Using NM-4E Module)
+interface Ethernet1/2
+ description Link_To_ServerFarm_Switch
+ ip address 192.168.50.1 255.255.255.0
+ no shutdown
+ exit
+
+! Transit Link to Perimeter Firewall (Using NM-4E Module)
+interface Ethernet1/3
+ description Transit_Link_To_ASA_Firewall
+ ip address 192.168.100.2 255.255.255.252
+ no shutdown
+ exit
+
+! ==========================================
+! 3. STATIC ROUTING
+! ==========================================
+! Push all unknown external traffic to the Firewall
+ip route 0.0.0.0 0.0.0.0 192.168.100.1
+
+end
+write memory
