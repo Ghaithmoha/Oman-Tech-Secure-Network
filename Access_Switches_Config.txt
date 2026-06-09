@@ -1,0 +1,32 @@
+enable
+configure terminal
+
+! Apply the specific department name (e.g., OmanTech-Finance-SW)
+hostname OmanTech-Access-SW
+
+! ==========================================
+! 1. LAYER-2 PORT SECURITY (STICKY MAC)
+! ==========================================
+! Apply security to active end-user connections
+interface range FastEthernet0/1 - 4
+ switchport mode access
+ switchport port-security
+ switchport port-security maximum 1
+ switchport port-security mac-address sticky
+ switchport port-security violation shutdown
+ exit
+
+! ==========================================
+! 2. UNAUTHORIZED PORT MITIGATION
+! ==========================================
+! Administratively disable all unused ports to prevent rogue access
+interface range FastEthernet0/5 - 24
+ shutdown
+ exit
+
+interface range GigabitEthernet0/1 - 2
+ shutdown
+ exit
+
+end
+write memory
