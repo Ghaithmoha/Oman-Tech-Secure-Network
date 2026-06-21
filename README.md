@@ -1,7 +1,7 @@
 # 🏢 Oman Tech: Secure Network Infrastructure
 
 ## 📌 Project Overview
-This repository contains the design, configuration, and implementation of a secure enterprise network infrastructure for "Oman Tech". The project transitions the organization from a vulnerable flat network to a highly secure, segmented architecture using physical isolation and strict Zero-Trust policies.
+This repository contains the design, configuration, and implementation of a secure enterprise network infrastructure for "Oman Tech". The project transitions the organization from a vulnerable flat network to a highly secure, segmented architecture using physical isolation and strict Least-Privilege policies.
 
 ## 🛠️ Technologies & Features Implemented
 * **Subnet Segmentation:** Network divided into discrete `/24` subnets for Finance, HR, IT, Management, and Server Farm.
